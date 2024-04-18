@@ -1,24 +1,25 @@
-function parseQuery(sqlQuery) {
-  // Regular expression patterns
-  const selectPattern = /SELECT\s+(.+?)\s+FROM/i;
-  const fromPattern = /FROM\s+(\w+)/i;
+function parseQuery(query) {
+  const selectRegex = /SELECT (.+?) FROM (.+?)(?: WHERE (.*))?$/i;
+  const match = query.match(selectRegex);
 
-  // Match SELECT fields
-  const selectMatch = sqlQuery.match(selectPattern);
-  const selectFields = selectMatch ? selectMatch[1].split(',').map(field => field.trim()) : [];
+  if (match) {
+      const [, fields, table, where] = match;
+      const parsedData = {
+          fields: fields.split(',').map(field => field.trim()),
+          table: table.trim(),
+          where: null // Initialize 'where' property
+      };
 
-  // Match FROM table
-  const fromMatch = sqlQuery.match(fromPattern);
-  const fromTable = fromMatch ? fromMatch[1] : null;
-
-  // Return parsed data
-  return {
-      fields: selectFields,
-      table: fromTable
-  };
+      if (where) {
+          // Extract and store the WHERE clause separately
+          parsedData.where = where.trim();
+      }
+console.log(parsedData)
+      return parsedData;
+  } else {
+      throw new Error('Invalid query format');
+  }
 }
+
 module.exports = {parseQuery};
-// Example usage:
-const query = 'SELECT id, name FROM sample';
-const parsedData = parseQuery(query);
-console.log(parsedData);
+
