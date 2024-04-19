@@ -2,24 +2,34 @@ function parseQuery(query) {
   const selectRegex = /SELECT (.+?) FROM (.+?)(?: WHERE (.*))?$/i;
   const match = query.match(selectRegex);
 
-  if (match) {
-      const [, fields, table, where] = match;
-      const parsedData = {
-          fields: fields.split(',').map(field => field.trim()),
-          table: table.trim(),
-          where: null // Initialize 'where' property
-      };
-
-      if (where) {
-          // Extract and store the WHERE clause separately
-          parsedData.where = where.trim();
-      }
-console.log(parsedData)
-      return parsedData;
-  } else {
+  if (!match) {
       throw new Error('Invalid query format');
   }
+  console.log(match);
+  const [, fields, table, whereString] = match;
+  const whereClauses = parseWhereClause(whereString);
+
+  return {
+      fields: fields.split(',').map(field => field.trim()),
+      table: table.trim(),
+      whereClauses: whereClauses
+  };
 }
 
-module.exports = {parseQuery};
+function parseWhereClause(whereString) {
+  if (!whereString) {
+      return [];
+  }
 
+  // Split the whereString at occurrences of "AND" or "OR", excluding them from the result
+  const conditions = whereString.split(/\s+(?:AND|OR)\s+/i);
+
+  return conditions.map(condition => {
+      // Split each condition into field, operator, and value
+      const [field, operator, value] = condition.split(/\s+/);
+      return { field, operator, value };
+  });
+}
+
+
+module.exports = {parseQuery,parseWhereClause};
