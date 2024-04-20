@@ -12,8 +12,8 @@ test('Read CSV File', async () => {
 
 test('Parse SQL Query', () => {
     const query = 'SELECT id, name FROM sample';
-    const parsed = parseQuery(query);
-    expect(parsed).toEqual({
+    const parsedData = parseQuery(query);
+    expect(parsedData).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
         whereClause: null
@@ -32,8 +32,8 @@ test('Execute SQL Query', async () => {
 
 test('Parse SQL Query with WHERE Clause', () => {
     const query = 'SELECT id, name FROM sample WHERE age = 25';
-    const parsed = parseQuery(query);
-    expect(parsed).toEqual({
+    const parsedData = parseQuery(query);
+    expect(parsedData).toEqual({
         fields: ['id', 'name'],
         table: 'sample',
         whereClause: 'age = 25'
