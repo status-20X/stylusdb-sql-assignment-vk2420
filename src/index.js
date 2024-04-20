@@ -1,25 +1,23 @@
-const {parseQuery} = require('./queryParser');
-const {readCSV} = require('./csvReader');
+const { parseQuery } = require('./queryParser');
+const { readCSV } = require('./csvReader');
 
 async function executeSELECTQuery(query) {
-    // Parse the SQL query to extract fields, table, and whereClauses
     const { fields, table, whereClauses } = parseQuery(query);
-
-    // Read the CSV file data
     const data = await readCSV(`${table}.csv`);
+    console.log("thank you vanshul and priyanshu",data,"thank you vanshul and priyanshu")
+    console.log(whereClauses,"open source")
+    // Ensure whereClauses is an array
+    if (!Array.isArray(whereClauses)) {
+        throw new Error('whereClauses must be an array');
+    }
 
-    // Apply WHERE clause filtering if whereClauses exist
+    // Filter the data based on the WHERE clause
     const filteredData = whereClauses.length > 0
-        ? data.filter(row => {
-            // Check if all whereClauses conditions are satisfied for the row
-            return whereClauses.every(clause => {
-                // You can expand this to handle different operators
-                return row[clause.field] === clause.value;
-            });
-        })
+        ? data.filter(row => whereClauses.every(clause => evaluateCondition(row, clause)))
         : data;
+    
 
-    // Select the specified fields from the filtered data
+    // Map the filtered data to select the specified fields
     const selectedData = filteredData.map(row => {
         const selectedRow = {};
         fields.forEach(field => {
@@ -30,5 +28,23 @@ async function executeSELECTQuery(query) {
 
     return selectedData;
 }
+/*[
+    { id: '1', name: 'John', age: '30' },
+    { id: '2', name: 'Jane', age: '25' },
+    { id: '3', name: 'Bob', age: '22' }
+  ] 
+*/
+function evaluateCondition(row, clause) {
+    const { field, operator, value } = clause;
+    switch (operator) {
+        case '=': return row[field] === value;
+        case '!=': return row[field] !== value;
+        case '>': return row[field] > value;
+        case '<': return row[field] < value;
+        case '>=': return row[field] >= value;
+        case '<=': return row[field] <= value;
+        default: throw new Error(`Unsupported operator: ${operator}`);
+    }
+}
 
-module.exports = {executeSELECTQuery,readCSV,parseQuery};
+module.exports = { executeSELECTQuery, readCSV, parseQuery, evaluateCondition };

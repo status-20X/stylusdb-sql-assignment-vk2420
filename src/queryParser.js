@@ -21,15 +21,21 @@ function parseWhereClause(whereString) {
       return [];
   }
 
-  // Split the whereString at occurrences of "AND" or "OR", excluding them from the result
+  const operatorRegex = /([=!<>]=?)/;
+
+  
   const conditions = whereString.split(/\s+(?:AND|OR)\s+/i);
 
   return conditions.map(condition => {
-      // Split each condition into field, operator, and value
-      const [field, operator, value] = condition.split(/\s+/);
-      return { field, operator, value };
+   
+      const [fieldWithValue, operator, value] = condition.split(operatorRegex);
+      const field = fieldWithValue.trim();
+     
+      const trimmedValue = value.trim();
+      return { field, operator, value: trimmedValue };
   });
 }
+
 
 
 module.exports = {parseQuery,parseWhereClause};
